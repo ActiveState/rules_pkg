@@ -101,8 +101,7 @@ class TarFileWriter(object):
         name=name,
         mode=mode,
         fileobj=self.fileobj,
-        format=tarfile.GNU_FORMAT,
-        stream=True
+        format=tarfile.GNU_FORMAT
     )
     self.members = set()
     self.directories = set()
@@ -130,6 +129,9 @@ class TarFileWriter(object):
         info.name += '/'
     if not self._have_added(info.name):
       self.tar.addfile(info, fileobj)
+      # HACKHACKHACKHACK
+      # https://github.com/python/cpython/issues/102120
+      self.tar.members = []
       self.members.add(info.name)
       if info.type == tarfile.DIRTYPE:
         self.directories.add(info.name)
@@ -277,7 +279,7 @@ class TarFileWriter(object):
       prefix = prefix.strip('/') + '/'
     if _DEBUG_VERBOSITY > 1:
       print('==========================  prefix is', prefix)
-    intar = tarfile.open(name=tar, mode='r:*', stream=True)
+    intar = tarfile.open(name=tar, mode='r:*' )
     for tarinfo in intar:
       if name_filter is None or name_filter(tarinfo.name):
         if not self.preserve_mtime:
