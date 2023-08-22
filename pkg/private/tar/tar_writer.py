@@ -97,8 +97,13 @@ class TarFileWriter(object):
       self.fileobj = self.compressor_proc.stdin
     self.name = name
 
-    self.tar = tarfile.open(name=name, mode=mode, fileobj=self.fileobj,
-                            format=tarfile.GNU_FORMAT) 
+    self.tar = tarfile.open(
+        name=name,
+        mode=mode,
+        fileobj=self.fileobj,
+        format=tarfile.GNU_FORMAT,
+        stream=True
+    )
     self.members = set()
     self.directories = set()
     # Preseed the added directory list with things we should not add. If we
@@ -272,7 +277,7 @@ class TarFileWriter(object):
       prefix = prefix.strip('/') + '/'
     if _DEBUG_VERBOSITY > 1:
       print('==========================  prefix is', prefix)
-    intar = tarfile.open(name=tar, mode='r:*')
+    intar = tarfile.open(name=tar, mode='r:*', stream=True)
     for tarinfo in intar:
       if name_filter is None or name_filter(tarinfo.name):
         if not self.preserve_mtime:
